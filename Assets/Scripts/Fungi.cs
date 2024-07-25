@@ -57,6 +57,8 @@ public class Fungi : MonoBehaviour
     public void FollowPath(List<Transform> points) => StartCoroutine(FollowPath_(points));
     IEnumerator FollowPath_(List<Transform> points)
     {
+        float lastStoppingDistance = agent.stoppingDistance;
+        agent.stoppingDistance = 0.3f;
         waypoints = new(points);
 
         foreach (Transform point in waypoints)
@@ -70,6 +72,8 @@ public class Fungi : MonoBehaviour
             Destroy(point.gameObject);
         agent.ResetPath();
         waypoints = new();
+
+        agent.stoppingDistance = lastStoppingDistance;
     }
 
     public void FollowPlayer() => StartCoroutine(FollowPlayer_());
@@ -146,7 +150,6 @@ public class Fungi : MonoBehaviour
                 yield return null;
             }
         }
-
         while (velocity > minVelocity || agentLinkMover.IsJumping)
         {
             if (!findingPath) ChangeState(newState);
@@ -267,7 +270,7 @@ public class Fungi : MonoBehaviour
     public Sequence JumpTween()
     {
         Sequence sequence = DOTween.Sequence();
-        return sequence.Insert(0, transform.DOJump(transform.position, 1, 1, 0.4f, false));
+        return sequence.Insert(0, transform.DOLocalJump(transform.position, 1, 1, 0.4f, false));
     }
     protected Sequence LookAtTween(Vector3 target, float speed = 1)
     {

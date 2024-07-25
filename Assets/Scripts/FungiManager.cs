@@ -32,7 +32,7 @@ public class FungiManager
                     Instance.fungis.Add(fungi.GetComponent<Fungi>());
                     Instance.ActivateFungi(Instance.fungis[^1]);
                 }
-                Instance.TurnOffTestMode();
+                //Instance.TurnOffTestMode();
             }
             return Instance;
         }

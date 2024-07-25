@@ -22,11 +22,11 @@ public class HeadFungi : Fungi
             headSurface.IsSomeoneOnTop)
         {
             foreach (var link in navMeshLinks)
-                link.activated = false;
+                link.enabled = false;
             return;
         }
         foreach (var link in navMeshLinks)
-            link.activated = true;
+            link.enabled = false;
     }
 
     public override void JoinFungi()
