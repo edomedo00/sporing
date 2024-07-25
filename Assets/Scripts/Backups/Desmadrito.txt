@@ -1,0 +1,162 @@
+using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.InputSystem.LowLevel;
+
+public class Fungi : MonoBehaviour
+{
+    public NavMeshAgent agent;
+    public List<Transform> waypoints;
+    public enum State { Listening, Walking, Following, Waiting }
+    public Sequence sequence;
+    public AgentLinkMover agentLinkMover;
+    private State state;
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        agentLinkMover = GetComponent<AgentLinkMover>();
+        state = State.Following;
+        sequence = DOTween.Sequence();
+    }
+
+    public void FollowPath(List<Transform> points) => StartCoroutine(FollowPath_(points));
+
+    bool attemptComplete = false;
+    IEnumerator FollowPath_(List<Transform> points)
+    {
+        attemptComplete = false;
+        ChangeState(State.Walking);
+        waypoints = new(points);
+        NavMeshPath path = new();
+        Transform lastPoint = null;
+        while (!attemptComplete)
+        {
+            foreach (Transform point in waypoints)
+            {
+                lastPoint = point;
+                path = new();
+                agent.CalculatePath(point.position, path);
+                agent.SetDestination(point.position);
+
+                print("Ok reportado");
+                yield return StartCoroutine(NoPath(point, State.Walking));
+                break;
+            }
+
+            if (attemptComplete) break;
+
+            attemptComplete = true;
+            while (agent.remainingDistance > agent.stoppingDistance)
+            {
+                while (agentLinkMover.IsJumping) yield return null;
+                path = new();
+                agent.CalculatePath(lastPoint.position, path);
+                if (path.corners.Length != 0) agent.SetDestination(path.corners[^1]);
+                if (path.status != NavMeshPathStatus.PathComplete || !agent.hasPath || agent.isPathStale)
+                {
+                    print("Conchesumare " + path.status + " " + agent.hasPath + " " + agent.isPathStale);
+                    attemptComplete = false;
+                    break;
+                }
+                yield return null;
+            }
+        }
+        while (agentLinkMover.IsJumping) yield return null;
+        ChangeState(State.Waiting);
+        foreach (Transform point in waypoints)
+            Destroy(point.gameObject);
+        agent.ResetPath();
+        waypoints = new();
+        attemptComplete = false;
+    }
+
+    IEnumerator NoPath(Transform point, State newState)
+    {
+        Debug.Log("Chucha");
+        NavMeshPath path = new();
+        agent.CalculatePath(point.position, path);
+        if (path.corners.Length != 0) agent.SetDestination(path.corners[^1]);
+
+        yield return new WaitForSeconds(0.2f);
+        while (agent.velocity.sqrMagnitude > 0.01f || agentLinkMover.IsJumping)
+        {
+            float lastSpeed = agent.velocity.sqrMagnitude;
+            while (agentLinkMover.IsJumping) yield return null;
+
+            path = new();
+            agent.CalculatePath(point.position, path);
+            if (path.corners.Length != 0) agent.SetDestination(path.corners[^1]);
+            if (path.status == NavMeshPathStatus.PathComplete)
+            {
+                print("Eureka");
+                ChangeState(newState);
+                yield break;
+            }
+            if (agent.velocity.sqrMagnitude <= 0.01f)
+                while (lastSpeed > (agent.speed * agent.speed) * 0.1f && !agentLinkMover.IsJumping)
+                {
+                    lastSpeed = agent.velocity.sqrMagnitude;
+                    yield return null;
+                }
+            yield return null;
+
+            
+        }
+        while (agentLinkMover.IsJumping) yield return null;
+        NoTween(5, 0.2f);
+        if (sequence.IsActive()) yield return sequence.WaitForKill();
+        attemptComplete = true;
+    }
+
+    public void FollowPlayer(Transform point) => StartCoroutine(FollowPlayer_(point));
+
+    IEnumerator FollowPlayer_(Transform point)
+    {
+        agent.SetDestination(point.position);
+        yield return null;
+        if (!agent.hasPath || agent.pathStatus == NavMeshPathStatus.PathPartial)
+        {
+            ChangeState(State.Waiting);
+
+            yield return StartCoroutine(NoPath(point, State.Following));
+            yield break;
+        }
+
+        ChangeState(State.Following);
+    }
+
+    void NoTween(int times, float speed)
+    {
+        sequence.Kill();
+        int sign;
+        for (int i = 0; i < times; i++)
+        {
+            sign = 1;
+            if (i % 2 == 0) sign = -1;
+            sequence = DOTween.Sequence();
+            sequence.Insert(i * speed, transform.DORotate
+                                 (transform.eulerAngles + 30 * sign * Vector3.up, speed));
+        }
+        sequence.Insert(times * speed, transform.DORotate(transform.eulerAngles, speed));
+    }
+
+    public void ChangeState(State state)
+    {
+        if (state == State.Listening || state == State.Waiting) agent.ResetPath();
+        this.state = state;
+    }
+
+    public bool CompareState(State state)
+    {
+        return this.state == state;
+    }
+
+    public State GetState()
+    {
+        return state;
+    }
+}

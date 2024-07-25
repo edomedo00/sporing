@@ -1,0 +1,206 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Cinemachine;
+using DG.Tweening;
+using UnityEngine.InputSystem;
+using static UnityEngine.InputSystem.InputAction;
+using System;
+using UnityEditorInternal;
+
+public class FungiCommander : MonoBehaviour
+{
+    [SerializeField] GameObject cursorPrefab;
+    [SerializeField] LayerMask layerMask;
+    [SerializeField] LayerMask fungiMask;
+    CinemachineFreeLook cinemachine;
+    Fungi commandedFungi;
+    readonly List<Transform> waypoints = new();
+    MeshRenderer meshRenderer;
+    PlayerInput playerInput;
+    StateChanger state;
+
+    public enum State { MovingCamera, SetStartPoint, SetEndPoint, Default }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        cinemachine = FindAnyObjectByType<CinemachineFreeLook>();
+        playerInput = GetComponent<PlayerInput>();
+        meshRenderer = GetComponent<MeshRenderer>();
+        state = new(State.Default);
+        meshRenderer.enabled = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        CameraControl();
+        SetWaypoints();
+        state.UpdateState();
+    }
+
+    Sequence sequence;
+    public void CommandAgent(CallbackContext callbackContext)
+    {
+        if (state.IsEnter()) return;
+        if (!callbackContext.performed) return;
+        if (state.CompareState(State.MovingCamera)) return;
+        if (sequence.IsActive()) return;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, fungiMask)) return;
+
+        ResetWaypoints();
+        Fungi fungi = hit.transform.GetComponent<Fungi>();
+        commandedFungi = fungi;
+        if (commandedFungi == null) return;
+        commandedFungi.state = Fungi.State.Listening;
+        state.ChangeState(State.SetStartPoint);
+        sequence = DOTween.Sequence();
+        sequence.Insert(0, hit.transform.DOJump(hit.transform.position, 1, 1, 0.4f, false));
+
+        GetComponent<MeshRenderer>().enabled = true;
+    }
+
+    public void Follow(CallbackContext callbackContext)
+    {
+        if (!callbackContext.performed) return;
+        if (state.CompareState(State.MovingCamera)) return;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, fungiMask)) return;
+
+        Fungi fungi = hit.transform.GetComponent<Fungi>();
+        if (fungi.state != Fungi.State.Waiting) return;
+
+        ResetWaypoints();
+        fungi.state = Fungi.State.Following;
+    }
+
+    void ResetWaypoints()
+    {
+        foreach (var waypoint in waypoints)
+            Destroy(waypoint.gameObject);
+        waypoints.Clear();
+    }
+
+
+    State lastState;
+    public void CameraControl()
+    {
+        if (!state.CompareState(State.MovingCamera)) return;
+        Vector2 input = playerInput.actions["MoveCamera"].ReadValue<Vector2>() * 0.05f;
+        cinemachine.m_XAxis.m_InputAxisValue = input.x;
+        cinemachine.m_YAxis.m_InputAxisValue = input.y;
+    }
+
+    public void ActivateCamera(CallbackContext callbackContext)
+    {
+        if (callbackContext.started)
+        {
+            meshRenderer.enabled = false;
+            lastState = (State)state.GetState();
+            state.ChangeStateImmediate(State.MovingCamera);
+            return;
+        }
+        if (!callbackContext.canceled) return;
+        cinemachine.m_XAxis.m_InputAxisValue = 0f;
+        cinemachine.m_YAxis.m_InputAxisValue = 0f;
+        state.ChangeStateImmediate(lastState);
+        meshRenderer.enabled = state.CompareState(State.SetStartPoint) || 
+                               state.CompareState(State.SetEndPoint);
+    }
+
+    void SetWaypoints()
+    {
+        if (state.IsEnter()) return;
+        if (!state.CompareState(State.SetStartPoint) && !state.CompareState(State.SetEndPoint))
+        {
+            if (!state.CompareState(State.MovingCamera)) waypoints.Clear();
+            return;
+        }
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask)) return;
+        if (hit.transform.gameObject.layer == 6)
+        {
+            meshRenderer.enabled = false;
+            return;
+        }
+        else meshRenderer.enabled = true;
+
+        transform.forward = hit.normal;
+        transform.position = hit.point;
+
+        if (!Input.GetMouseButtonDown(0)) return;
+
+        GameObject cursor = Instantiate(cursorPrefab, transform);
+        waypoints.Add(cursor.transform);
+        cursor.transform.parent = hit.transform;
+        if (state.CompareState(State.SetEndPoint))
+        {
+            state.ChangeState(State.Default);
+            StartCoroutine(FungiManager.Singleton.FollowPath(commandedFungi, waypoints));
+            meshRenderer.enabled = false;
+            return;
+        }
+        state.ChangeState(State.SetEndPoint);
+    }
+}
+
+public class StateChanger
+{
+    private int state;
+    private int nextState;
+    public enum Phase { Enter, Update, Exit}
+
+    private Phase phase;
+    public StateChanger(object state)
+    {
+        this.state = (int)state;
+    }
+
+    public virtual void Enter() { phase = Phase.Update; }
+    public virtual void Update() { phase = Phase.Update; }
+    public virtual void Exit() { phase = Phase.Exit; }
+
+    public object UpdateState()
+    {
+        Debug.Log((FungiCommander.State)state);
+        if (phase == Phase.Enter) Enter();
+        if (phase == Phase.Update) Update();
+        if (phase == Phase.Exit)
+        {
+            Exit();
+            state = nextState;
+            return nextState;
+        }
+        return state;
+    }
+
+    public int GetState()
+    {
+        return state;
+    }
+
+    public bool CompareState(object state)
+    {
+        return this.state == (int)state;
+    }
+
+    public virtual void ChangeState(object newState)
+    {
+        nextState = (int)newState;
+        phase = Phase.Exit;
+    }
+
+    public virtual void ChangeStateImmediate(object newState)
+    {
+        state = (int)newState;
+        phase = Phase.Enter;
+    }
+
+    public bool IsEnter() { return phase == Phase.Enter; }
+    public bool IsUpdate() { return phase == Phase.Update; }
+    public bool IsExit() {  return phase == Phase.Exit; }
+}

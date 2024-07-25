@@ -1,0 +1,46 @@
+GameObject lastWall;
+void FallDetector()
+{
+    if (direction.sqrMagnitude == 0) return;
+    Ray ray = RayFallDetector(out Ray wallRay, out float maxDistance, out float wallMaxDistance);
+    if (Physics.Raycast(ray, out RaycastHit hitInfo, maxDistance, fallMask))
+    {
+        if (hitInfo.normal.y > 0.5f)
+        {
+            print(hitInfo.normal);
+            return;
+        }
+    }
+
+    if (!Physics.Raycast(wallRay, out RaycastHit hit, wallMaxDistance, fallMask)) return;
+    if (hit.transform.gameObject.layer == 7) return;
+    if (hit.normal.y < -0.2 || hit.normal.y > 0.4) return;
+
+    float offset = wallPrefab.transform.GetChild(0).GetComponent<BoxCollider>().bounds.size.z * 0.5f;
+    //if(lastWall != null) Destroy(lastWall);
+    lastWall = Instantiate(wallPrefab);
+    lastWall.transform.forward = hit.normal;
+    lastWall.transform.eulerAngles = new(0, lastWall.transform.eulerAngles.y, 0);
+    lastWall.transform.position = hit.point + hit.normal * offset;
+}
+
+Ray RayFallDetector(out Ray wallRay, out float maxDistance, out float wallMaxDistance)
+{
+    //Vector3 direction = controller.velocity.normalized;
+    maxDistance = 1.5f;
+    wallMaxDistance = 1.5f;
+    float sizeX = controller.bounds.size.x * wallMaxDistance;
+    float sizeY = controller.bounds.size.y * 0.5f;
+    Vector3 offset = sizeY * Vector3.down + direction.normalized * sizeX;
+    Ray ray = new(transform.position + offset - 0.5f * Vector3.down, Vector3.down * maxDistance);
+    wallRay = new(ray.origin + maxDistance * Vector3.down, direction * -wallMaxDistance);
+    return ray;
+}
+
+private void OnDrawGizmos()
+{
+    Gizmos.color = Color.red;
+    Ray ray = RayFallDetector(out Ray wallRay, out float maxDistance, out float wallMaxDistance);
+    Gizmos.DrawRay(ray.origin, ray.direction * maxDistance);
+    Gizmos.DrawRay(wallRay.origin, wallRay.direction * wallMaxDistance);
+}
