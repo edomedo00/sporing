@@ -29,15 +29,16 @@ public class TranslatorFungi : Fungi
         JoinFungi();
     }
 
-    IEnumerator JoinAnotherFungi(Collider other)
+    public IEnumerator JoinAnotherFungi(Collider other)
     {
-        if (!IsInTheSameHeight(other.transform, 1)) yield break;
+        if (!IsInTheSameHeight(other.transform.parent, 1)) yield break;
+
         if (waypoints.Count == 0) yield break;
         if(interacting) yield break;
         interacting = true;
-        Fungi otherFungi = other.gameObject.GetComponent<Fungi>();
+        Fungi otherFungi = other.transform.parent.gameObject.GetComponent<Fungi>();
         
-        yield return StartCoroutine(RepositionInFrontOf(other.transform));
+        yield return StartCoroutine(RepositionInFrontOf(other.transform.parent));
 
         sequence = JumpTween();
         state = State.Walking;
@@ -55,11 +56,6 @@ public class TranslatorFungi : Fungi
         otherFungi.JoinFungi();
         FollowPlayer();
         interacting = false;
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        StartCoroutine(JoinAnotherFungi(other));
     }
 
     private void OnDrawGizmos()

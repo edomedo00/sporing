@@ -8,17 +8,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float speed = 10;
     [SerializeField] float rotationSpeed = 1;
     [SerializeField] float gravity = 9.8f;
-    [SerializeField] CharacterController controller;
+    [SerializeField] CharacterController characterController;
     [SerializeField] GameObject wallPrefab;
     [SerializeField] LayerMask fallMask;
     Vector3 direction = Vector3.forward;
     PlayerInput playerInput;
+    PlayerAnimation playerAnimation;
 
     // Start is called before the first frame update
     void Start()
     {
-        controller = GetComponent<CharacterController>();
+        characterController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
+        playerAnimation = GetComponent<PlayerAnimation>();
         direction = Vector3.zero;
     }
 
@@ -27,6 +29,7 @@ public class PlayerController : MonoBehaviour
     {
         PlayerMovement();
         FungiManager.Singleton.FollowPlayer();
+        playerAnimation.Jump(characterController.velocity);
     }
 
     void PlayerMovement()
@@ -37,7 +40,7 @@ public class PlayerController : MonoBehaviour
         Quaternion camRotation = Quaternion.Euler(new(0, Camera.main.transform.eulerAngles.y, 0));
 
         this.direction = camRotation * direction;
-        controller.Move(speed * Time.deltaTime * this.direction + GravityVector());
+        characterController.Move(speed * Time.deltaTime * this.direction + GravityVector());
 
         if (direction.magnitude < 0.01) return;
 
@@ -50,7 +53,7 @@ public class PlayerController : MonoBehaviour
     float fallVelocity = 0;
     Vector3 GravityVector()
     {
-        if (controller.isGrounded)
+        if (characterController.isGrounded)
         {
             fallVelocity = 0;
             return Vector3.down * fallVelocity;

@@ -29,12 +29,6 @@ public class HeadFungi : Fungi
             link.enabled = true;
     }
 
-    public override void JoinFungi()
-    {
-        base.JoinFungi();
-        DestroyImmediate(GetComponent<Rigidbody>());
-    }
-
     public override void Activate()
     {
         base.Activate();

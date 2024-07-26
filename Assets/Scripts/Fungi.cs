@@ -20,15 +20,17 @@ public class Fungi : MonoBehaviour
     public AgentLinkMover agentLinkMover;
     protected State state;
     protected bool interacting;
+    protected new Collider collider;
 
     public virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         agentLinkMover = GetComponent<AgentLinkMover>();
+        collider = transform.GetChild(0).GetComponent<Collider>();
         state = State.Following;
         sequence = DOTween.Sequence();
         interacting = false;
-        if(!CompareTag("Fungi")) StartCoroutine(RepositionAgent());
+        if (!CompareTag("Fungi")) StartCoroutine(RepositionAgent());
     }
 
     IEnumerator RepositionAgent()
@@ -47,7 +49,7 @@ public class Fungi : MonoBehaviour
 
     public virtual void Activate()
     {
-        gameObject.layer = 6;
+        collider.gameObject.layer = 6;
         gameObject.tag = "Fungi";
         DestroyImmediate(GetComponent<NavMeshObstacle>());
         DestroyImmediate(GetComponent<NavMeshModifier>());
@@ -61,6 +63,7 @@ public class Fungi : MonoBehaviour
         float lastStoppingDistance = agent.stoppingDistance;
         agent.stoppingDistance = 0.3f;
         waypoints = new(points);
+
         foreach (Transform point in waypoints)
         {
             if (DetectMyself(point)) { yield return sequence.WaitForKill(); continue; }

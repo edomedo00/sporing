@@ -12,7 +12,7 @@ public class InteractorFungi : Fungi
         StartCoroutine(PressButton(other));
     }
 
-    IEnumerator PressButton(Collider other)
+    public IEnumerator PressButton(Collider other)
     {
         if (!IsInTheSameHeight(other.transform, 1)) yield break;
         if (state != State.Walking) yield break;

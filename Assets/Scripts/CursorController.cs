@@ -73,10 +73,9 @@ public class CursorController : MonoBehaviour
         if (sequence.IsActive()) return;
 
         Ray ray = Camera.main.ScreenPointToRay(playerInput.actions["Cursor"].ReadValue<Vector2>());
-        if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, fungiMask)) return;
-
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, fungiMask)) return;
         ResetWaypoints();
-        Fungi fungi = hit.transform.GetComponent<Fungi>();
+        Fungi fungi = hit.transform.parent.GetComponent<Fungi>();
         commandedFungi = fungi;
         if (commandedFungi == null) return;
         if (commandedFungi.CompareState(Fungi.State.Walking)) return;
@@ -92,9 +91,9 @@ public class CursorController : MonoBehaviour
         if (state.CompareState(State.MovingCamera)) return;
 
         Ray ray = Camera.main.ScreenPointToRay(playerInput.actions["Cursor"].ReadValue<Vector2>());
-        if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, fungiMask)) return;
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, fungiMask)) return;
 
-        Fungi fungi = hit.transform.GetComponent<Fungi>();
+        Fungi fungi = hit.transform.parent.GetComponent<Fungi>();
         if (fungi.CompareState(Fungi.State.Walking) || 
             fungi.CompareState(Fungi.State.Following))  return;
         state.ChangeState(State.Default);
