@@ -14,6 +14,7 @@ public class InteractorFungi : Fungi
 
     IEnumerator PressButton(Collider other)
     {
+        if (!IsInTheSameHeight(other.transform, 1)) yield break;
         if (state != State.Walking) yield break;
         if (waypoints.Count == 0) yield break;
         if (interacting) yield break;
@@ -25,20 +26,19 @@ public class InteractorFungi : Fungi
 
         waypoints[^1].position = target;
         waypoints[^1].GetComponent<MeshRenderer>().enabled = false;
-        float lastStoppingDistance = agent.stoppingDistance;
-        agent.stoppingDistance = 0.3f;
+        agent.SetDestination(target);
 
         while (state != State.Waiting) yield return null;
         state = State.Walking;
-
         yield return StartCoroutine(other.GetComponent<ButtonActionLinker>().PressButton());
         agent.SetDestination(originalPos);
         while (agent.remainingDistance > agent.stoppingDistance) yield return null;
 
         state = State.Waiting;
-        agent.stoppingDistance = lastStoppingDistance;
         other.gameObject.layer = 0;
         interacting = false;
+
+        if (IsPlayerCloseEnough(10, 2)) FollowPlayer();
     }
 
     IEnumerator Interact(Collider other)
@@ -48,7 +48,7 @@ public class InteractorFungi : Fungi
         if(interacting) yield break;
         interacting = true;
 
-        yield return StartCoroutine(RepositionInFrontOf(other.transform, 0.3f));
+        yield return StartCoroutine(RepositionInFrontOf(other.transform));
 
         Vector3 point = other.transform.parent.GetChild(0).position;
         float velocity = Vector3.Distance(other.transform.position, point) / 5;

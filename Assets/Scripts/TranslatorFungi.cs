@@ -31,27 +31,28 @@ public class TranslatorFungi : Fungi
 
     IEnumerator JoinAnotherFungi(Collider other)
     {
+        if (!IsInTheSameHeight(other.transform, 1)) yield break;
         if (waypoints.Count == 0) yield break;
         if(interacting) yield break;
         interacting = true;
-        Fungi fungi = other.gameObject.GetComponent<Fungi>();
+        Fungi otherFungi = other.gameObject.GetComponent<Fungi>();
         
-        yield return StartCoroutine(RepositionInFrontOf(other.transform, 1f));
+        yield return StartCoroutine(RepositionInFrontOf(other.transform));
 
         sequence = JumpTween();
-
+        state = State.Walking;
         yield return sequence.WaitForKill();
-        fungi.sequence = fungi.JumpTween();
-        yield return fungi.sequence.WaitForKill();
+        otherFungi.sequence = otherFungi.JumpTween();
+        yield return otherFungi.sequence.WaitForKill();
 
         for(int i = 0; i < 3; i++)
         {
             sequence = JumpTween();
-            fungi.sequence = fungi.JumpTween();
-            yield return fungi.sequence.WaitForKill();
+            otherFungi.sequence = otherFungi.JumpTween();
+            yield return otherFungi.sequence.WaitForKill();
         }
 
-        fungi.JoinFungi();
+        otherFungi.JoinFungi();
         FollowPlayer();
         interacting = false;
     }
