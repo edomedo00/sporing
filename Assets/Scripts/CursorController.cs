@@ -45,7 +45,7 @@ public class CursorController : MonoBehaviour
     bool priorityActionPerformed = false;
     void HoldInteraction()
     {
-        if (playerInput.actions["Follow"].WasPerformedThisFrame())
+        if (playerInput.actions["Follow"].phase == InputActionPhase.Performed)
         {
             priorityActionPerformed = true;
             Follow();

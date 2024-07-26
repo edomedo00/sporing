@@ -52,6 +52,7 @@ public class Fungi : MonoBehaviour
         DestroyImmediate(GetComponent<NavMeshObstacle>());
         DestroyImmediate(GetComponent<NavMeshModifier>());
         agent.enabled = true;
+        transform.SetParent(null);
     }
 
     public void FollowPath(List<Transform> points) => StartCoroutine(FollowPath_(points));
@@ -60,7 +61,6 @@ public class Fungi : MonoBehaviour
         float lastStoppingDistance = agent.stoppingDistance;
         agent.stoppingDistance = 0.3f;
         waypoints = new(points);
-
         foreach (Transform point in waypoints)
         {
             if (DetectMyself(point)) { yield return sequence.WaitForKill(); continue; }
@@ -230,7 +230,7 @@ public class Fungi : MonoBehaviour
         FollowPlayer();
     }
 
-    public IEnumerator RepositionInFrontOf(Transform other, float tempStoppingDistance)
+    public IEnumerator RepositionInFrontOf(Transform other)
     {
         float size = 0;
         if (other.GetComponent<MeshRenderer>() != null) size = other.transform.localScale.z / 2f;
@@ -238,18 +238,15 @@ public class Fungi : MonoBehaviour
         float distance = size + interactionDistance;
         waypoints[^1].position = other.position + other.forward * distance;
         waypoints[^1].GetComponent<MeshRenderer>().enabled = false;
-        float lastStoppingDistance = agent.stoppingDistance;
-        agent.stoppingDistance = tempStoppingDistance;
 
         while (state != State.Waiting) yield return null;
 
         while (agent.velocity.magnitude != 0 || agentLinkMover.IsJumping) yield return null;
+        ChangeState(State.Walking);
         sequence.Kill();
         sequence = DOTween.Sequence();
-
         sequence = LookAtTween(other.position, 0.5f);
         yield return sequence.WaitForKill();
-        agent.stoppingDistance = lastStoppingDistance;
     }
 
     public void NoTween(int times = 3, float speed = 0.2f)
@@ -270,7 +267,7 @@ public class Fungi : MonoBehaviour
     public Sequence JumpTween()
     {
         Sequence sequence = DOTween.Sequence();
-        return sequence.Insert(0, transform.DOLocalJump(transform.position, 1, 1, 0.4f, false));
+        return sequence.Insert(0, transform.DOJump(transform.position, 1, 1, 0.4f, false));
     }
     protected Sequence LookAtTween(Vector3 target, float speed = 1)
     {
@@ -285,12 +282,27 @@ public class Fungi : MonoBehaviour
         return sequence.Insert(0, transform.DOLocalRotate(Vector3.up * targetAngle, time));
     }
 
+    protected bool IsInTheSameHeight(Transform other, float tolerance)
+    {
+        return Mathf.Abs(transform.position.y - other.position.y) < tolerance;
+    }
+
     Vector3 Cross(Vector3 v, Vector3 w)
     {
         float x = v.y * w.z - v.z * w.y;
         float y = v.x * w.z - v.z * w.x;
         float z = v.x * w.y - v.y * w.x;
         return new(x, y, z);
+    }
+
+    protected bool IsPlayerCloseEnough(float farnessLimit, float heightLimit)
+    {
+        Vector3 player = FungiManager.Singleton.PlayerFollowPoint.position;
+        Vector2 playerPos = new(player.x, player.z);
+        Vector2 fugniPos = new(transform.position.x, transform.position.z);
+        if (Mathf.Abs(player.y - transform.position.y) > heightLimit) return false;
+        if (Vector2.Distance(playerPos, fugniPos) > farnessLimit) return false;
+        return true;
     }
 
     public static List<GameObject> corners = new();

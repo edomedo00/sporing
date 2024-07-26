@@ -26,7 +26,7 @@ public class HeadFungi : Fungi
             return;
         }
         foreach (var link in navMeshLinks)
-            link.enabled = false;
+            link.enabled = true;
     }
 
     public override void JoinFungi()
