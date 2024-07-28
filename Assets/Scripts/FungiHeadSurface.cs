@@ -8,12 +8,11 @@ public class FungiHeadSurface : MonoBehaviour
     public bool IsSomeoneOnTop { get; private set; }
     [SerializeField] LayerMask fungiMask;
     NavMeshSurface navMeshSurface;
-    float maxDistance;
+    [SerializeField] float maxDistance = 1;
 
     void Start()
     {
         navMeshSurface = GetComponent<NavMeshSurface>();
-        maxDistance = Vector3.Distance(IgnoreY(transform.position), IgnoreY(transform.GetChild(0).position));
     }
 
     void Update()
@@ -24,17 +23,16 @@ public class FungiHeadSurface : MonoBehaviour
 
     bool DetectSomeoneOnTop()
     {
-        if(!Physics.Raycast(transform.GetChild(0).position, -transform.GetChild(0).forward, out RaycastHit hit, maxDistance, fungiMask)) return false;
-        if(!hit.transform.GetComponent<Fungi>()) return false;
-        Fungi fungi = hit.transform.GetComponent<Fungi>();
+        if(!Physics.Raycast(transform.GetChild(0).position, Vector3.up, out RaycastHit hit, maxDistance, fungiMask)) return false;
+        if(!hit.transform.parent.GetComponent<Fungi>()) return false;
+        Fungi fungi = hit.transform.parent.GetComponent<Fungi>();
         if (!fungi.CompareState(Fungi.State.Waiting) && !fungi.CompareState(Fungi.State.Listening)) return false;
         return true;
     }
 
     private void OnDrawGizmos()
     { 
-        float maxDistance = Vector3.Distance(IgnoreY(transform.position), IgnoreY(transform.GetChild(0).position));
-        Gizmos.DrawRay(transform.GetChild(0).position, -transform.GetChild(0).forward * maxDistance); 
+        Gizmos.DrawRay(transform.GetChild(0).position, Vector3.up * maxDistance); 
     }
 
     Vector2 IgnoreY(Vector3 vector3)

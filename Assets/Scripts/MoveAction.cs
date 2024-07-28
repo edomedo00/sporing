@@ -12,6 +12,7 @@ public class MoveAction : Action
         target = transform.GetChild(0);
     }
 
+    [ContextMenu("Excecute action")]
     public override void ExcecuteAction()
     {
         base.ExcecuteAction();

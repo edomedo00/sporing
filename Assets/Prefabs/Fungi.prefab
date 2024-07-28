@@ -134,7 +134,7 @@ MonoBehaviour:
   agent: {fileID: 0}
   waypoints: []
   interactionDistance: 1
-  maxPathDistance: 70
+  maxPathDistance: 150
   agentLinkMover: {fileID: 0}
 --- !u!195 &8881370444776981801
 NavMeshAgent:

@@ -32,7 +32,7 @@ public class FungiManager
                     Instance.fungis.Add(fungi.GetComponent<Fungi>());
                     Instance.ActivateFungi(Instance.fungis[^1]);
                 }
-                Instance.TurnOffTestMode();
+                //Instance.TurnOffTestMode();
             }
             return Instance;
         }
@@ -40,7 +40,7 @@ public class FungiManager
 
     void TurnOffTestMode()
     {
-        playerFollowPoint.parent.position = Vector3.zero;
+        playerFollowPoint.parent.position = new(0,1, -40);
         foreach(Fungi fungi in fungis)
             Object.Destroy(fungi.gameObject);
         Instance.fungis.Clear();

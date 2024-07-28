@@ -31,6 +31,7 @@ public class Fungi : MonoBehaviour
         sequence = DOTween.Sequence();
         interacting = false;
         if (!CompareTag("Fungi")) StartCoroutine(RepositionAgent());
+        maxPathDistance = 150;
     }
 
     IEnumerator RepositionAgent()
@@ -146,6 +147,15 @@ public class Fungi : MonoBehaviour
                 thereIsAPath = false;
                 yield break;
             }
+            if(point.parent != null)
+                if(point.parent.gameObject.layer == 8)
+                    if(path.status == NavMeshPathStatus.PathPartial ||
+                        path.status == NavMeshPathStatus.PathInvalid ||
+                        path.corners.Length == 0)
+                    {
+                        thereIsAPath = false;
+                        yield break;
+                    }
             while (velocity <= minVelocity && time < 0.2f)
             {
                 time += Time.deltaTime;
@@ -336,7 +346,7 @@ public class Fungi : MonoBehaviour
         corners.Clear();
     }
 
-    public void ChangeState(State state)
+    public virtual void ChangeState(State state)
     {
         if (state == State.Listening || state == State.Waiting) agent.ResetPath();
         this.state = state;
