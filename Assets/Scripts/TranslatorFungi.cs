@@ -1,4 +1,5 @@
 using DG.Tweening;
+using extOSC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ public class TranslatorFungi : Fungi
 {
     [SerializeField] float talkMargin = 2;
     Transform player;
+    public OSCTransmitter Transmitter;
     // Start is called before the first frame update
 
     public override void Awake()
@@ -26,6 +28,7 @@ public class TranslatorFungi : Fungi
         sequence = JumpTween();
         yield return sequence.WaitForKill();
 
+        Transmitter.Send(new OSCMessage("/ampPiano"));
         JoinFungi();
     }
 

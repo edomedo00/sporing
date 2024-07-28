@@ -1,5 +1,7 @@
+using extOSC;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] CharacterController characterController;
     [SerializeField] GameObject wallPrefab;
     [SerializeField] LayerMask fallMask;
+    public OSCTransmitter Transmitter;
     Vector3 direction = Vector3.forward;
     PlayerInput playerInput;
     PlayerAnimation playerAnimation;
@@ -18,6 +21,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Transmitter.Send(new OSCMessage("/start")); 
         characterController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         playerAnimation = GetComponent<PlayerAnimation>();
