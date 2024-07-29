@@ -10,7 +10,6 @@ public class FungiTranslator : Fungi
 {
     [SerializeField] float talkMargin = 2;
     Transform player;
-    public OSCTransmitter Transmitter;
     // Start is called before the first frame update
 
     public override void Awake()
@@ -23,19 +22,24 @@ public class FungiTranslator : Fungi
 
     public override void NoTween(int times = 3, float speed = 0.2F)
     {
-        base.NoTween(times, speed);
-        // Aquí puedes poner el sonido de NO
+        Transmitter.Send(new OSCMessage("/translatorNo"));
+        base.NoTween(times, speed); 
+        
     }
 
     public override Sequence JumpTween(int jumpNumber = 1)
     {
+        var transpose = 100;
+        var message = new OSCMessage("/fungiJump", OSCValue.Float(transpose), OSCValue.Int(jumpNumber));
+        Transmitter.Send(message);
+
         return base.JumpTween(jumpNumber);
-        // Aquí puedes poner el sonido de SALTO
     }
 
     public override Sequence Talk()
     {
         //Aquí puedes poner el sonido que van a hacer al HABLAR
+        Transmitter.Send(new OSCMessage("/translatorTalk"));
         return base.JumpTween();
     }
 
@@ -48,13 +52,14 @@ public class FungiTranslator : Fungi
         while (Vector3.Distance(transform.position, player.position) > talkMargin)
             yield return null;
 
-        var transpose = 100;
-        var jumps = 3;
-        var message = new OSCMessage("/fungiJump", OSCValue.Float(transpose), OSCValue.Int(jumps));
-        Transmitter.Send(message);
         sequence = Talk();
         yield return sequence.WaitForKill();
+        yield return new WaitForSeconds(2.5f); // Cambia 2f por el tiempo que desees esperar
 
+        for (int i = 0; i < 3; i++) {
+            sequence = JumpTween();
+            yield return sequence.WaitForKill();
+        }
         Transmitter.Send(new OSCMessage("/ampPiano"));
         JoinFungi();
     }
@@ -72,16 +77,20 @@ public class FungiTranslator : Fungi
         
         yield return StartCoroutine(RepositionInFrontOf(other.transform.parent));
 
-        sequence = Talk();
         state = State.Walking;
+        sequence = Talk();
         yield return sequence.WaitForKill();
+        yield return new WaitForSeconds(2.5f); 
+
         otherFungi.sequence = otherFungi.Talk();
         yield return otherFungi.sequence.WaitForKill();
+        yield return new WaitForSeconds(2.5f); 
 
-        for(int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
-            sequence = Talk();
-            otherFungi.sequence = otherFungi.Talk();
+            sequence = JumpTween();
+            yield return new WaitForSeconds(0.05f); 
+            otherFungi.sequence = otherFungi.JumpTween();
             yield return otherFungi.sequence.WaitForKill();
         }
 

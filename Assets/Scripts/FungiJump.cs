@@ -1,4 +1,5 @@
 using DG.Tweening;
+using extOSC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,19 +21,22 @@ public class FungiJump : Fungi
 
     public override void NoTween(int times = 3, float speed = 0.2F)
     {
+        Transmitter.Send(new OSCMessage("/trampolineNo"));
         base.NoTween(times, speed);
-        // Aquí puedes poner el sonido de NO
     }
 
     public override Sequence JumpTween(int jumpNumber = 1)
     {
+        var transpose = -100;
+        var message = new OSCMessage("/fungiJump", OSCValue.Float(transpose), OSCValue.Int(jumpNumber));
+        Transmitter.Send(message);
         return base.JumpTween(jumpNumber);
-        // Aquí puedes poner el sonido de SALTO
     }
 
     public override Sequence Talk()
     {
-        //Aquí puedes poner el sonido que van a hacer al HABLAR
+        Transmitter.Send(new OSCMessage("/trampolineTalk"));
+        Transmitter.Send(new OSCMessage("/ampBass"));
         return base.JumpTween();
     }
 

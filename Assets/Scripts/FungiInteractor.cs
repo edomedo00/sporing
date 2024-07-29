@@ -4,25 +4,29 @@ using UnityEngine;
 using UnityEngine.AI;
 using DG.Tweening;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
+using extOSC;
 
 public class FungiInteractor : Fungi
 {
 
     public override void NoTween(int times = 3, float speed = 0.2F)
     {
+        Transmitter.Send(new OSCMessage("/interactorNo"));
         base.NoTween(times, speed);
-        // Aquí puedes poner el sonido de NO
     }
 
     public override Sequence JumpTween(int jumpNumber = 1)
     {
+        var transpose = 0;
+        var message = new OSCMessage("/fungiJump", OSCValue.Float(transpose), OSCValue.Int(jumpNumber));
+        Transmitter.Send(message);
         return base.JumpTween(jumpNumber);
-        // Aquí puedes poner el sonido de SALTO
     }
 
     public override Sequence Talk()
     {
-        //Aquí puedes poner el sonido que van a hacer al HABLAR
+        Transmitter.Send(new OSCMessage("/interactorTalk"));
+        Transmitter.Send(new OSCMessage("/ampDrums"));
         return base.JumpTween();
     }
 

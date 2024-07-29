@@ -1,27 +1,43 @@
 using extOSC;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
+    public OSCTransmitter Transmitter;
     [SerializeField] float speed = 10;
     [SerializeField] float rotationSpeed = 1;
     [SerializeField] float gravity = 9.8f;
     [SerializeField] CharacterController characterController;
     [SerializeField] GameObject wallPrefab;
     [SerializeField] LayerMask fallMask;
-    public OSCTransmitter Transmitter;
     Vector3 direction = Vector3.forward;
     PlayerInput playerInput;
     PlayerAnimation playerAnimation;
 
+    private void Awake()
+    {
+        if (Transmitter != null)
+        {
+            Debug.Log("Transmitter is not null, sending /start message");
+            Transmitter.Send(new OSCMessage("/start2"));
+        }
+        else
+        {
+            Debug.LogError("Transmitter is null in Awake!");
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        Transmitter.Send(new OSCMessage("/start")); 
+        Transmitter.Send(new OSCMessage("/start"));
+
         characterController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         playerAnimation = GetComponent<PlayerAnimation>();

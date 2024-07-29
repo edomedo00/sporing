@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using extOSC;
+
 
 public class PlayerAnimation : MonoBehaviour
 {
@@ -9,6 +11,8 @@ public class PlayerAnimation : MonoBehaviour
     Sequence sequence;
     bool jumping;
     Vector3 originalLocalPos;
+    public OSCTransmitter Transmitter;
+
 
     private void Start()
     {
@@ -21,6 +25,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         if (jumping) return;
         if (velocity.magnitude < 0.01f) return;
+        Transmitter.Send(new OSCMessage("/walk"));
         StartCoroutine(JumpCoroutine());
     }
 

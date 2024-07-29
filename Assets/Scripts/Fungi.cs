@@ -1,4 +1,5 @@
 using DG.Tweening;
+using extOSC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ public class Fungi : MonoBehaviour
     protected State state;
     protected bool interacting;
     protected new Collider collider;
+    public OSCTransmitter Transmitter;
+
 
     public virtual void Awake()
     {
