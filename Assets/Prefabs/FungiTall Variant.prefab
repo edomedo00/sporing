@@ -669,7 +669,7 @@ PrefabInstance:
     - target: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
       propertyPath: m_Name
-      value: TallFungi Variant
+      value: FungiTall Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8881370444776981801, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
@@ -716,7 +716,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
       insertIndex: 1
-      addedObject: {fileID: 3542447515774988177}
+      addedObject: {fileID: 7435808929811653295}
   m_SourcePrefab: {fileID: 100100000, guid: e3f201f8f79d97b4f838f0195faa36fa, type: 3}
 --- !u!1 &2166374866060610257 stripped
 GameObject:
@@ -724,7 +724,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 7516058023036588259}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3542447515774988177
+--- !u!114 &7435808929811653295
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -733,7 +733,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2166374866060610257}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 206d274e4f63f30419c622ea4df417f8, type: 3}
+  m_Script: {fileID: 11500000, guid: 88ee5f0b17f25154ca3fc090f9c5edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 0}

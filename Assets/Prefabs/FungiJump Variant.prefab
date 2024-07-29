@@ -201,7 +201,7 @@ PrefabInstance:
     - target: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
       propertyPath: m_Name
-      value: JumpFungi Variant
+      value: FungiJump Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8881370444776981801, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}

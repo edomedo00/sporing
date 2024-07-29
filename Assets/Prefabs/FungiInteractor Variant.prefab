@@ -86,7 +86,7 @@ PrefabInstance:
     - target: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
       propertyPath: m_Name
-      value: InteractorFungi Variant
+      value: FungiInteractor Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
@@ -176,11 +176,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1704275396974315877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92d4d4205b319cf46ba9826eae4df335, type: 3}
+  m_Script: {fileID: 11500000, guid: 9a24ac051c04e7a4e81c6ebfe8b875bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
   waypoints: []
-  interactionDistance: 0.3
+  interactionDistance: 1
   maxPathDistance: 70
   agentLinkMover: {fileID: 0}

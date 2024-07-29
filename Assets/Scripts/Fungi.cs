@@ -34,6 +34,13 @@ public class Fungi : MonoBehaviour
         maxPathDistance = 150;
     }
 
+    //Función genérica del sonido que reproducirán los fungis. Será reemplazada en cada tipo diferente de fungi.
+    //Lleva implícito el saltar, pero puedes decidirlo manualmente con un bool como parámetro de entrada.
+    public virtual Sequence Talk()
+    {
+        return JumpTween();
+    }
+
     IEnumerator RepositionAgent()
     {
         GetComponent<NavMeshObstacle>().enabled = false;
@@ -41,11 +48,6 @@ public class Fungi : MonoBehaviour
         yield return new WaitForEndOfFrame();
         agent.enabled = false;
         GetComponent<NavMeshObstacle>().enabled = true;
-    }
-
-    public virtual void Interact()
-    {
-
     }
 
     public virtual void Activate()
@@ -262,7 +264,7 @@ public class Fungi : MonoBehaviour
         yield return sequence.WaitForKill();
     }
 
-    public void NoTween(int times = 3, float speed = 0.2f)
+    public virtual void NoTween(int times = 3, float speed = 0.2f)
     {
         sequence.Kill();
         int sign;
@@ -277,7 +279,7 @@ public class Fungi : MonoBehaviour
         sequence.Insert(times * speed, transform.DOLocalRotate(transform.eulerAngles, speed));
     }
 
-    public Sequence JumpTween(int jumpNumber = 1)
+    public virtual Sequence JumpTween(int jumpNumber = 1)
     {
         Sequence sequence = DOTween.Sequence();
         return sequence.Insert(0, transform.DOJump(transform.position, 1, jumpNumber, 0.4f, false));

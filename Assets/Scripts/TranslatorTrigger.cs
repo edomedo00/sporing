@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class TranslatorTrigger : MonoBehaviour
 {
-    TranslatorFungi fungi;
+    FungiTranslator fungi;
 
     private void Awake()
     {
-        fungi = transform.parent.GetComponent<TranslatorFungi>();
+        fungi = transform.parent.GetComponent<FungiTranslator>();
     }
 
     private void OnTriggerStay(Collider other)

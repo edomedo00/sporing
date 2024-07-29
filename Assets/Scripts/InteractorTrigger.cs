@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class InteractorTrigger : MonoBehaviour
 {
-    InteractorFungi fungi;
+    FungiInteractor fungi;
 
     private void Awake()
     {
-        fungi = transform.parent.GetComponent<InteractorFungi>();
+        fungi = transform.parent.GetComponent<FungiInteractor>();
     }
 
     private void OnTriggerStay(Collider other)
