@@ -277,11 +277,12 @@ public class Fungi : MonoBehaviour
         sequence.Insert(times * speed, transform.DOLocalRotate(transform.eulerAngles, speed));
     }
 
-    public Sequence JumpTween()
+    public Sequence JumpTween(int jumpNumber = 1)
     {
         Sequence sequence = DOTween.Sequence();
-        return sequence.Insert(0, transform.DOJump(transform.position, 1, 1, 0.4f, false));
+        return sequence.Insert(0, transform.DOJump(transform.position, 1, jumpNumber, 0.4f, false));
     }
+
     protected Sequence LookAtTween(Vector3 target, float speed = 1)
     {
         Vector3 direction = Vector3.forward;

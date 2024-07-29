@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class TranslatorFungi : Fungi
 {
@@ -25,6 +26,10 @@ public class TranslatorFungi : Fungi
         while (Vector3.Distance(transform.position, player.position) > talkMargin)
             yield return null;
 
+        var transpose = 100;
+        var jumps = 3;
+        var message = new OSCMessage("/fungiJump", OSCValue.Float(transpose), OSCValue.Int(jumps));
+        Transmitter.Send(message);
         sequence = JumpTween();
         yield return sequence.WaitForKill();
 
