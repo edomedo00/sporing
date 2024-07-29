@@ -9,35 +9,21 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
-    public OSCTransmitter Transmitter;
     [SerializeField] float speed = 10;
     [SerializeField] float rotationSpeed = 1;
     [SerializeField] float gravity = 9.8f;
     [SerializeField] CharacterController characterController;
     [SerializeField] GameObject wallPrefab;
     [SerializeField] LayerMask fallMask;
+    public OSCTransmitter Transmitter;
+    public bool musicOn = false;
     Vector3 direction = Vector3.forward;
     PlayerInput playerInput;
     PlayerAnimation playerAnimation;
 
-    private void Awake()
-    {
-        if (Transmitter != null)
-        {
-            Debug.Log("Transmitter is not null, sending /start message");
-            Transmitter.Send(new OSCMessage("/start2"));
-        }
-        else
-        {
-            Debug.LogError("Transmitter is null in Awake!");
-        }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
-        Transmitter.Send(new OSCMessage("/start"));
-
         characterController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         playerAnimation = GetComponent<PlayerAnimation>();
@@ -47,6 +33,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!musicOn)
+        {
+            Transmitter.Send(new OSCMessage("/start"));
+            musicOn = true;
+        }
         PlayerMovement();
         FungiManager.Singleton.FollowPlayer();
         playerAnimation.Jump(characterController.velocity);
