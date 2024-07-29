@@ -222,7 +222,7 @@ PrefabInstance:
     - target: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
       propertyPath: m_Name
-      value: TranslatorFungi Variant
+      value: FungiTranslator Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8529506005438077490, guid: e3f201f8f79d97b4f838f0195faa36fa,
         type: 3}
@@ -300,15 +300,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 264743071135475808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea863f372a22b934694973d79a5b0e59, type: 3}
+  m_Script: {fileID: 11500000, guid: daec39c4ba823244183aa5558cc72d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
   waypoints: []
-  interactionDistance: 3
+  interactionDistance: 1
   maxPathDistance: 70
   agentLinkMover: {fileID: 0}
-  talkMargin: 6
+  talkMargin: 4
+  Transmitter: {fileID: 0}
 --- !u!208 &3545687653570891883
 NavMeshObstacle:
   m_ObjectHideFlags: 0

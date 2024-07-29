@@ -5,8 +5,28 @@ using UnityEngine.AI;
 using DG.Tweening;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
-public class InteractorFungi : Fungi
+public class FungiInteractor : Fungi
 {
+
+    public override void NoTween(int times = 3, float speed = 0.2F)
+    {
+        base.NoTween(times, speed);
+        // Aquí puedes poner el sonido de NO
+    }
+
+    public override Sequence JumpTween(int jumpNumber = 1)
+    {
+        return base.JumpTween(jumpNumber);
+        // Aquí puedes poner el sonido de SALTO
+    }
+
+    public override Sequence Talk()
+    {
+        //Aquí puedes poner el sonido que van a hacer al HABLAR
+        return base.JumpTween();
+    }
+
+
     private void OnTriggerStay(Collider other)
     {
         StartCoroutine(PressButton(other));
