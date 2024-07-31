@@ -2,9 +2,9 @@
 /*
 Place the cursor here and hit Ctrl+Enter
 
-If you want to stop the audio hit Ctrl+.
+If you want to stop the audio, hit Ctrl+.
 
-If you stop the audio you have to exit the game, hit Ctrl+Enter (start the audio file), and then start the game again
+If you stop the audio, you need to exit the game. Hit Ctrl+Enter (to start the audio file), and then start the game again.
 */
 
 var s, bpm, beat, currentPath, resourcesPath, waterFilePath, replaceSlash;
@@ -258,7 +258,8 @@ SynthDef(
 // Walk
 SynthDef(\walkDirt, {
 	|out = 0, amp = 0.28, atk = 0.035, sus = 0.5, rel = 0.12|
-	var env, pinkNoise, lowNoise, combinedNoise, filter, randAmp, randFreq, dust, granulatedNoise;
+	var env, pinkNoise, lowNoise, combinedNoise, filter,
+	randAmp, randFreq, dust, granulatedNoise;
 
 	randAmp = amp * (1 + Rand(-0.70, -0.75));
 	randFreq = LFNoise1.kr(1).range(1150, 1250);
@@ -484,7 +485,7 @@ Routine({
 		\sus, 0.3,
 		\ctranspose, -24,
 		\blend, Pwhite(0, -0.5, inf),
-		\amp, 0.28 * Pfunc { ~ampBass }
+		\amp, 0.25 * Pfunc { ~ampBass }
 	).play;
 
 
@@ -803,3 +804,4 @@ OSCFunc({ arg msg;
 
 
 )
+s.scope;
